@@ -2,9 +2,11 @@
 ---
 # _RV-Summary | rvalp_
 
-The describe architecture is a RISC-V	architecture	with	the	following	features:	
+The describe architecture is a RISC-V	architecture	with	the	following	features:
 
-	 •	16 general-purpose registers (x0–x15), where x0 is a dedicated zero register. When		read,	its	value	is	always	0x00000000.	Whenever there	is	an	attempt	to			write	to	x0,	the	data	is	simply	discarded.
+	 •	16 general-purpose registers (x0–x15), where x0 is a dedicated zero register. 
+	 	When read, its value is always 0x00000000. 
+		 Whenever there	is an attempt to write to x0, the data is simply discarded.
 	 
 	 •	Registers	are	32	bits	wide
 	 •	There	is	a	program	counter	(PC) register	32	bits	wide.	
