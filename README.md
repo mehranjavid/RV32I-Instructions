@@ -1,9 +1,19 @@
-# RV32I-Instructions
+# RV32E
+
+The describe architecture is a RISC-V	architecture	with	the	following	features:	
+	 •	16 general-purpose registers (x0–x15), where x0 is a dedicated zero register.
+	 •	Registers	are	32	bits	wide	
+	 •	Multiply	and	divide	instructions	are	 not present	
+	 •	Single	and	double	precision	Floating	point	instructions	are not	present	
+	 •	Atomic	instructions	are not	present	 
 
 ```sh
 Jump    	Unconditional change
 Branch  	Conditional change
 ```
+
+
+
 ## Instructions
 
 | Instruction | Type | Description | RTL |
@@ -45,3 +55,5 @@ sub rd, rs1, rs2 | R | Subtract | rd ← rs1 - rs2, pc ← pc+4
 sw rs2, imm(rs1) | S | Store Word | m32(rs1+imm s) ← rs2[31:0], pc ← pc+4
 xor rd, rs1, rs2 | R | Exclusive Or | rd ← rs1 ^ rs2, pc ← pc+4
 xori rd, rs1, imm | I | Exclusive Or Immediate | rd ← rs1 ^ imm i, pc ← pc+4
+
+
