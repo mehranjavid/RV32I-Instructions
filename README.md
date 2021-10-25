@@ -1,16 +1,60 @@
 # RV32E
+---
+# _RV-Summary | rvalp_
 
 The describe architecture is a RISC-V	architecture	with	the	following	features:	
-	 •	16 general-purpose registers (x0–x15), where x0 is a dedicated zero register.
-	 •	Registers	are	32	bits	wide	
+
+	 •	16 general-purpose registers (x0–x15), where x0 is a dedicated zero register. When		read,	its	value	is	always	0x00000000.	Whenever there	is	an	attempt	to			write	to	x0,	the	data	is	simply	discarded.
+	 
+	 •	Registers	are	32	bits	wide
+	 •	There	is	a	program	counter	(PC) register	32	bits	wide.	
+	 
+	 •	“Control	and	Status	Registers”	(CSRs)	
+	 •	Little	endian	architecture.
 	 •	Multiply	and	divide	instructions	are	 not present	
 	 •	Single	and	double	precision	Floating	point	instructions	are not	present	
+	 
 	 •	Atomic	instructions	are not	present	 
 
 ```sh
 Jump    	Unconditional change
 Branch  	Conditional change
 ```
+
+# instruction	formats:	
+
+## R-type	instructions:	
+	 	 Operands:	
+	 	 	 RegD,Reg1,Reg2	
+	 	 Example:	
+    ADD x4,x6,x8 # x4 = x6+x8
+##  I-type	instructions:	
+	 	 Operands:	
+	 	 	 RegD,Reg1,Immed-12	
+	 	 Examples:	
+    ADDI x4,x6,123 # x4 = x6+123
+    LW x4,8(x6) # x4 = Mem[8+x6]
+##  S-type	instructions:	
+	 	 Operands:	
+	 	 	 Reg1,Reg2,Immed-12	
+	 	 Example:	
+    SW x4,8(x6) # Mem[8+r6] = x4 (word)
+##  B-type	instructions	(a	variant	of	S-type):	
+	 	 Operands:	
+	 	 	 Reg1,Reg2,Immed-12	
+	 	 Example:	
+    blt x4,x6,loop # if x4<x6, goto offset(pc)
+##  U-type	instructions:	
+	 	 Operands:	
+	 	 	 RegD,Immed-20	
+	 	 Example:	
+    LUI x4,0x12AB7 # x4 = value<<12
+    AUIPC x4,0x12AB7 # x4 = (value<<12) + pc
+##  J-type	instructions	(a	variant	of	U-type):	
+	 	 Operands:	
+	 	 	 RegD,Immed-20	
+	 	 Example:	
+    jal x4,foo # call: pc=offset+pc; x4=ret addr
 
 
 
