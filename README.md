@@ -2,21 +2,21 @@
 ---
 # _RV-Summary | rvalp_
 
-The describe architecture is a RISC-V	architecture	with	the	following	features:
+The describe architecture is a RISC-V	architecture	with	the	following	features:	
 
 	 •	16 general-purpose registers (x0–x15), where x0 is a dedicated zero register. 
 	 	When read, its value is always 0x00000000. 
-		 Whenever there	is an attempt to write to x0, the data is simply discarded.
+		Whenever there is an attempt to write to x0, the data is simply discarded.
 	 
-	 •	Registers	are	32	bits	wide
-	 •	There	is	a	program	counter	(PC) register	32	bits	wide.	
+	 •	Registers are 32 bits wide
+	 •	There is a program counter (PC) register 32 bits wide.	
 	 
-	 •	“Control	and	Status	Registers”	(CSRs)	
-	 •	Little	endian	architecture.
-	 •	Multiply	and	divide	instructions	are	 not present	
-	 •	Single	and	double	precision	Floating	point	instructions	are not	present	
+	 •	“Control and Status Registers” (CSRs)	
+	 •	Little endian architecture.
+	 •	Multiply and divide instructions are not present	
+	 •	Single and double precision Floating point instructions are not present	
 	 
-	 •	Atomic	instructions	are not	present	 
+	 •	Atomic instructions are not present
 
 ```sh
 Jump    	Unconditional change
@@ -64,8 +64,8 @@ Branch  	Conditional change
 
 | Instruction | Type | Description | RTL |
 | ------ | ------ | ------ | ------ |
-add rd, rs1, rs2 | R | Add | rd ← rs1 + rs2, pc ← pc+4
-addi rd, rs1, imm | I | Add Immediate | rd ← rs1 + imm i, pc ← pc+4
+//add rd, rs1, rs2 | R | Add | rd ← rs1 + rs2, pc ← pc+4
+//addi rd, rs1, imm | I | Add Immediate | rd ← rs1 + imm i, pc ← pc+4
 and rd, rs1, rs2 | R | And | rd ← rs1 & rs2, pc ← pc+4
 andi rd, rs1, imm | I | And Immediate | rd ← rs1 & imm i, pc ← pc+4
 auipc rd, imm | U | Add Upper Immediate to PC | rd ← pc + imm u, pc ← pc+4
@@ -83,6 +83,7 @@ lh rd, imm(rs1) | I | Load Halfword | rd ← sx(m16(rs1+imm i)), pc ← pc+4
 lhu rd, imm(rs1) | I | Load Halfword Unsigned | rd ← zx(m16(rs1+imm i)), pc ← pc+4
 lui rd, imm | U | Load Upper Immediate | rd ← imm u, pc ← pc+4
 lw rd, imm(rs1) | I | Load Word | rd ← sx(m32(rs1+imm i)), pc ← pc+4
+//neg rd,rs2 |  | Negate | NEG x4,x9  , x4 = -x9  == SUB RegD,x0,Reg2
 or rd, rs1, rs2 | R | Or | rd ← rs1 | rs2, pc ← pc+4
 ori rd, rs1, imm | I | Or Immediate | rd ← rs1 | imm i, pc ← pc+4
 sb rs2, imm(rs1) | S | Store Byte | m8(rs1+imm s) ← rs2[7:0], pc ← pc+4
@@ -97,9 +98,7 @@ sra rd, rs1, rs2 | R | Shift Right Arithmetic | rd ← rs1 >> (rs2%XLEN), pc ←
 srai rd, rs1, shamt | I | Shift Right Arithmetic Immediate | rd ← rs1 >> shamt i, pc ← pc+4
 srl rd, rs1, rs2 | R | Shift Right Logical | rd ← rs1 >> (rs2%XLEN), pc ← pc+4
 srli rd, rs1, shamt | I | Shift Right Logical Immediate | rd ← rs1 >> shamt i, pc ← pc+4
-sub rd, rs1, rs2 | R | Subtract | rd ← rs1 - rs2, pc ← pc+4
+//sub rd, rs1, rs2 | R | Subtract | rd ← rs1 - rs2, pc ← pc+4
 sw rs2, imm(rs1) | S | Store Word | m32(rs1+imm s) ← rs2[31:0], pc ← pc+4
 xor rd, rs1, rs2 | R | Exclusive Or | rd ← rs1 ^ rs2, pc ← pc+4
 xori rd, rs1, imm | I | Exclusive Or Immediate | rd ← rs1 ^ imm i, pc ← pc+4
-
-
