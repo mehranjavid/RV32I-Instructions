@@ -7,9 +7,9 @@
 - 16 general-purpose registers (x0–x15), where x0 is a dedicated zero register. When read, its value is always 0x00000000. 	Whenever there is an attempt to write to x0, the data is simply discarded.
 - Registers are 32 bits wide.
 - There is a program counter (PC) register 32 bits wide.	
-- “Control and Status Registers” (CSRs)	
 - Little endian architecture.
 - Multiply and divide instructions are not present	
+- “Control and Status Registers” (CSRs)	
 - Single and double precision Floating point instructions are not present	
 - Atomic instructions are not present
 
@@ -41,6 +41,25 @@ Branch  	Conditional change
 	 	 	 Reg1,Reg2,Immed-12	
 	 	 Example:	
     blt x4,x6,loop # if x4<x6, goto offset(pc)
+
+The only difference between S-type and B-type instructions is how the 12-bit immediate value is handled. In an B-type instruction, the immediate value is multiplied by 2 (i.e., shifted left 1 bit) before being used. In the S-type instruction, the value is not shifted. 
+In both cases, sign-extension occurs. In particular, the bits to the left are synthesized by 2illing them in with a copy of the most signi2icant bit actually present.
+
+## S-type immediate values: 
+	Actual value used (where s=sign-extension): 
+		ssss ssss ssss ssss ssss VVVV VVVV VVVV 
+	Range of values: 
+		-2,048 .. +2,047 
+		0xFFFFF800 .. 0x000007FF
+
+## B-type immediate values:	
+	Actual value used (where s=sign-extension): 
+		ssss ssss ssss ssss sssV VVVV VVVV VVV0
+	Range of values: 
+		-4,096 .. +4,094 (in multiples of 2) 
+		0xFFFFF000 .. 0x00000FFE 
+
+
 ##  U-type	instructions:	
 	 	 Operands:	
 	 	 	 RegD,Immed-20	
@@ -53,6 +72,50 @@ Branch  	Conditional change
 	 	 Example:	
     jal x4,foo # call: pc=offset+pc; x4=ret addr
 
+The only difference between U-type and J-type instructions is how the 20-bit immediate value is handled. In a U-type instruction, the immediate value is shifted left by 12 bits to give a 32 bit value. In other words, the immediate value is placed in the uppermost 20 bits, and the lower 12 bits are zero-2illed. 
+
+## U-type immediate values: 
+	Actual value used: 
+		VVVV VVVV VVVV VVVV VVVV 0000 0000 0000
+	The value is always aligned to a multiple of 4,096. 
+
+## J-type immediate values:	
+	Actual value used (where s=sign-extension): 
+		ssss ssss sssV VVVV VVVV VVVV VVVV VVV0
+	Range of values: 
+		-1,048,576 .. +1,048,574 (in multiples of 2)
+		0xFFF00000 .. 0x000FFFFE
+
+---
+
+Next, we give the encodings for the different types of instructions. In the following, each letter represents a single bit, according to the following legend:
+
+DDDDD = RegD 
+11111 = Reg1 
+22222 = Reg2 
+VVVVV = Immediate value 
+XXXXX = Op-code / function code 
+
+## R-type instructions: 
+	Operands: 
+		RegD,Reg1,Reg2 
+	Encoding: 
+		XXXX XXX2 2222 1111 1XXX DDDD DXXX XXXX 
+## I-type instructions: 
+	Operands: 
+		RegD,Reg1,Immed-12 
+	Encoding: 
+		VVVV VVVV VVVV 1111 1XXX DDDD DXXX XXXX 
+## S-type and B-type instructions: 
+	Operands: 
+		Reg1,Reg2,Immed-12 
+	Encoding: 
+		VVVV VVV2 2222 1111 1XXX VVVV VXXX XXXX 
+## U-type and J-type instructions: 
+	Operands: 
+		RegD,Immed-20 
+	Encoding: 
+		VVVV VVVV VVVV VVVV VVVV DDDD DXXX XXXX
 
 
 ## Instructions
