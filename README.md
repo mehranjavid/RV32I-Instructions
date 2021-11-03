@@ -154,6 +154,7 @@ XXXXX = Op-code / function code
 	Encoding: 
 		VVVV VVVV VVVV VVVV VVVV DDDD DXXX XXXX
 
+![Bit Distribution](./bitDist.PNG)
 
 ## Instructions
 
@@ -275,3 +276,5 @@ ret                          | jalr x0, x1, 0                                   
 call offset                  | auipc x6, offset[31:12]; jalr x1, x6, offset[11:0]            | Call far-away subroutine
 tail offset                  | auipc x6, offset[31:12]; jalr x0, x6, offset[11:0]            | Tail call far-away subroutine
 fence                        | fence iorw, iorw                                              | Fence on all memory and I/O
+
+![Instruction Set Bit Distribution](./InstructionsbitDist.PNG)
