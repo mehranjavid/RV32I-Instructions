@@ -18,6 +18,43 @@ Jump    	Unconditional change
 Branch  	Conditional change
 ```
 
+Register  | ABI         | Use by convention                     | Preserved?
+:-------- | :---------- | :---------------                      | ------
+x0        | zero        | hardwired to 0, ignores writes        | _n/a_
+x1        | ra          | return address for jumps              | no
+x2        | sp          | stack pointer                         | yes
+x3        | gp          | global pointer                        | _n/a_
+x4        | tp          | thread pointer                        | _n/a_
+x5        | t0          | temporary register 0                  | no
+x6        | t1          | temporary register 1                  | no
+x7        | t2          | temporary register 2                  | no
+x8        | s0 _or_ fp  | saved register 0 _or_ frame pointer   | yes
+x9        | s1          | saved register 1                      | yes
+x10       | a0          | return value _or_ function argument 0 | no
+x11       | a1          | return value _or_ function argument 1 | no
+x12       | a2          | function argument 2                   | no
+x13       | a3          | function argument 3                   | no
+x14       | a4          | function argument 4                   | no
+x15       | a5          | function argument 5                   | no
+x16       | a6          | function argument 6                   | no
+x17       | a7          | function argument 7                   | no
+x18       | s2          | saved register 2                      | yes
+x19       | s3          | saved register 3                      | yes
+x20       | s4          | saved register 4                      | yes
+x21       | s5          | saved register 5                      | yes
+x22       | s6          | saved register 6                      | yes
+x23       | s7          | saved register 7                      | yes
+x24       | s8          | saved register 8                      | yes
+x25       | s9          | saved register 9                      | yes
+x26       | s10         | saved register 10                     | yes
+x27       | s11         | saved register 11                     | yes
+x28       | t3          | temporary register 3                  | no
+x29       | t4          | temporary register 4                  | no
+x30       | t5          | temporary register 5                  | no
+x31       | t6          | temporary register 6                  | no
+pc        | _(none)_    | program counter                       | _n/a_
+
+
 # instruction	formats:	
 
 ##  R-type	instructions:	
@@ -185,3 +222,56 @@ JR Reg1 | Jump Register | JR Reg1 # Goto *Reg1, i.e., PC = Reg1. This is a speci
 RET | Return | RET # Goto *x1, i.e., PC = x1. This is a special case of another instruction. This instruction is assembled identically to: JALR x0,x1,0 # PC=x1+0; don’t save prev PC. By convention, x1 is used as the “link register” and will hold a return address. This instruction returns from a subroutine/function. Page 74
 CALL Immed-32 | Call Faraway Subroutine | CALL MyFunct # PC = new addr; x1 = ret addr. In order to deal with the larger distance to the subroutine, this “synthetic” instruction will be assembled using the following two-instruction sequence. The target address can be expressed as a 32-bit offset from the Program Counter. This offset is broken into two pieces, which are added to the PC in two steps. AUIPC x6,Immed-20 JALR x1,x6,Immed-12 The AUIPC instruction adds the PC to the upper 20-bit portion of the 32-bit offset and places the result in a temporary register. The JALR instruction adds in the lower 12 bits of the 32-bit offset and transfers control by loading the sum into the PC. It also saves the return address in x1. The CALL instruction makes use of the convention that x1 is the link register. It also uses x6, which is a “caller-saved temporary register” by convention. By convention, x1 is used as the “link register” and will hold a return address. This instruction calls a subroutine/function using a PC-relative scheme, where the subroutine offset from the CALL instruction exceeds the 20-bit limit (i.e., ±1 MiByte) of the JAL instruction. This instruction modi2ies register x6. Page 75
 TAIL Immed-32 | Tail Call (Faraway Subroutine) / Long-Distance Jump | TAIL MyFunct # PC = new addr; Discard ret addr. This instruction is used to jump to a distant location using a PC-relative scheme, where the displacement from the TAIL instruction to the target instruction exceeds the 20-bit limit (i.e., ±1 MiByte) of the J instruction (jump short distance). This instruction modi2ies register x6. This “synthetic” instruction will be assembled using the following twoinstruction sequence. AUIPC x6,Immed-20 JALR x0,x6,Immed-12 See the comments for the CALL instruction. The only difference is that here the return address is discarded (x0), instead of being saved in x1. Page 77
+
+
+----
+
+## A listing of standard RISC-V pseudoinstructions
+
+Pseudoinstruction            | Base Instruction(s)                                           | Meaning   | Comment
+:----------------------------|:--------------------------------------------------------------|:----------|:--------|
+la rd, symbol                | auipc rd, symbol[31:12]; addi rd, rd, symbol[11:0]            | Load address
+l{b\|h\|w\|d} rd, symbol     | auipc rd, symbol[31:12]; l{b\|h\|w\|d} rd, symbol[11:0]\(rd\) | Load global
+s{b\|h\|w\|d} rd, symbol, rt | auipc rt, symbol[31:12]; s{b\|h\|w\|d} rd, symbol[11:0]\(rt\) | Store global
+fl{w\|d} rd, symbol, rt      | auipc rt, symbol[31:12]; fl{w\|d} rd, symbol[11:0]\(rt\)      | Floating-point load global
+fs{w\|d} rd, symbol, rt      | auipc rt, symbol[31:12]; fs{w\|d} rd, symbol[11:0]\(rt\)      | Floating-point store global
+nop                          | addi x0, x0, 0                                                | No operation
+li rd, immediate             | *Myriad sequences*                                            | Load immediate
+mv rd, rs                    | addi rd, rs, 0                                                | Copy register
+not rd, rs                   | xori rd, rs, -1                                               | Ones’ complement
+neg rd, rs                   | sub rd, x0, rs                                                | Two’s complement
+negw rd, rs                  | subw rd, x0, rs                                               | Two’s complement word
+sext.b rd, rs                | slli rd, rs, XLEN - 8; srai rd, rd, XLEN - 8                  | Sign extend byte | It will expand to another instruction sequence when B extension is available*[1]
+sext.h rd, rs                | slli rd, rs, XLEN - 16; srai rd, rd, XLEN - 16                | Sign extend half word | It will expand to another instruction sequence when B extension is available*[1]
+sext.w rd, rs                | addiw rd, rs, 0                                               | Sign extend word
+zext.b rd, rs                | andi rd, rs, 255                                              | Zero extend byte
+zext.h rd, rs                | slli rd, rs, XLEN - 16; srli rd, rd, XLEN - 16                | Zero extend half word | It will expand to another instruction sequence when B extension is available*[1]
+zext.w rd, rs                | slli rd, rs, XLEN - 32; srli rd, rd, XLEN - 32                | Zero extend word | It will expand to another instruction sequence when B extension is available*[1]
+seqz rd, rs                  | sltiu rd, rs, 1                                               | Set if = zero
+snez rd, rs                  | sltu rd, x0, rs                                               | Set if != zero
+sltz rd, rs                  | slt rd, rs, x0                                                | Set if < zero
+sgtz rd, rs                  | slt rd, x0, rs                                                | Set if > zero
+fmv.s rd, rs                 | fsgnj.s rd, rs, rs                                            | Copy single-precision register
+fabs.s rd, rs                | fsgnjx.s rd, rs, rs                                           | Single-precision absolute value
+fneg.s rd, rs                | fsgnjn.s rd, rs, rs                                           | Single-precision negate
+fmv.d rd, rs                 | fsgnj.d rd, rs, rs                                            | Copy double-precision register
+fabs.d rd, rs                | fsgnjx.d rd, rs, rs                                           | Double-precision absolute value
+fneg.d rd, rs                | fsgnjn.d rd, rs, rs                                           | Double-precision negate
+beqz rs, offset              | beq rs, x0, offset                                            | Branch if = zero
+bnez rs, offset              | bne rs, x0, offset                                            | Branch if != zero
+blez rs, offset              | bge x0, rs, offset                                            | Branch if ≤ zero
+bgez rs, offset              | bge rs, x0, offset                                            | Branch if ≥ zero
+bltz rs, offset              | blt rs, x0, offset                                            | Branch if < zero
+bgtz rs, offset              | blt x0, rs, offset                                            | Branch if > zero
+bgt rs, rt, offset           | blt rt, rs, offset                                            | Branch if >
+ble rs, rt, offset           | bge rt, rs, offset                                            | Branch if ≤
+bgtu rs, rt, offset          | bltu rt, rs, offset                                           | Branch if >, unsigned
+bleu rs, rt, offset          | bgeu rt, rs, offset                                           | Branch if ≤, unsigned
+j offset                     | jal x0, offset                                                | Jump
+jal offset                   | jal x1, offset                                                | Jump and link
+jr rs                        | jalr x0, rs, 0                                                | Jump register
+jalr rs                      | jalr x1, rs, 0                                                | Jump and link register
+ret                          | jalr x0, x1, 0                                                | Return from subroutine
+call offset                  | auipc x6, offset[31:12]; jalr x1, x6, offset[11:0]            | Call far-away subroutine
+tail offset                  | auipc x6, offset[31:12]; jalr x0, x6, offset[11:0]            | Tail call far-away subroutine
+fence                        | fence iorw, iorw                                              | Fence on all memory and I/O
