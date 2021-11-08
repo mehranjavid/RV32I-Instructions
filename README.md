@@ -161,9 +161,30 @@ XXXXX = Op-code / function code
 | Instruction | Type | Description | RTL |
 | ------ | ------ | ------ | ------ |
 add rd, rs1, rs2 | R | Add | rd ← rs1 + rs2, pc ← pc+4
-addi rd, rs1, imm | I | Add Immediate | rd ← rs1 + imm i, pc ← pc+4
+or rd, rs1, rs2 | R | Or | rd ← rs1 | rs2, pc ← pc+4 , page 50
+sll rd, rs1, rs2 | R | Shift Left Logical | rd ← rs1 << (rs2%XLEN), pc ← pc+4 , page52
+slt rd, rs1, rs2 | R | Set If Less Than (Signed) | rd ← (rs1 < rs2) ? 1 : 0, pc ← pc+4 , page 61
+sltu rd, rs1, rs2 | R | Set If Less Than (Unsigned) | rd ← (rs1 < rs2) ? 1 : 0, pc ← pc+4
+sra rd, rs1, rs2 | R | Shift Right Arithmetic | rd ← rs1 >> (rs2%XLEN), pc ← pc+4 , page54
+srl rd, rs1, rs2 | R | Shift Right Logical | rd ← rs1 >> (rs2%XLEN), pc ← pc+4 , page53 
+xor rd, rs1, rs2 | R | Exclusive Or | rd ← rs1 ^ rs2, pc ← pc+4
+sub rd, rs1, rs2 | R | Subtract | rd ← rs1 - rs2, pc ← pc+4
 and rd, rs1, rs2 | R | And | rd ← rs1 & rs2, pc ← pc+4
+addi rd, rs1, imm | I | Add Immediate | rd ← rs1 + imm i, pc ← pc+4
 andi rd, rs1, imm | I | And Immediate | rd ← rs1 & imm i, pc ← pc+4
+jalr rd, imm(rs1) | I | Jump And Link Register | rd ← pc+4, pc ← (rs1+imm i)&~1 ,  page73
+lb rd, imm(rs1) | I | Load Byte | rd ← sx(m8(rs1+imm i)), pc ← pc+4 ,  page78
+lbu rd, imm(rs1) | I | Load Byte Unsigned | rd ← zx(m8(rs1+imm i)), pc ← pc+4 ,  page78
+lh rd, imm(rs1) | I | Load Halfword | rd ← sx(m16(rs1+imm i)), pc ← pc+4
+lw rd, imm(rs1) | I | Load Word | rd ← sx(m32(rs1+imm i)), pc ← pc+4 , page 80
+ori rd, rs1, imm | I | Or Immediate | rd ← rs1 | imm i, pc ← pc+4
+slli rd, rs1, shamt | I | Shift Left Logical Immediate | rd ← rs1 << shamt i, pc ← pc+4
+lhu rd, imm(rs1) | I | Load Halfword Unsigned | rd ← zx(m16(rs1+imm i)), pc ← pc+4
+slti rd, rs1, imm | I | Set Less Than Immediate (Signed) | rd ← (rs1 < imm i) ? 1 : 0, pc ← pc+4
+sltiu rd, rs1, imm | I | Set Less Than Immediate Unsigned | rd ← (rs1 < imm i) ? 1 : 0, pc ← pc+4 , Page 62
+srai rd, rs1, shamt | I | Shift Right Arithmetic Immediate | rd ← rs1 >> shamt i, pc ← pc+4 , page54
+xori rd, rs1, imm | I | Exclusive Or Immediate | rd ← rs1 ^ imm i, pc ← pc+4
+srli rd, rs1, shamt | I | Shift Right Logical Immediate | rd ← rs1 >> shamt i, pc ← pc+4
 auipc rd, imm | U | Add Upper Immediate to PC | rd ← pc + imm u, pc ← pc+4 ,  page59
 beq rs1, rs2, pcrel 13 | B | Branch Equal | pc ← pc + ((rs1==rs2) ? imm b : 4) ,  page65
 bge rs1, rs2, pcrel 13 | B | Branch Greater or Equal | pc ← pc + ((rs1>=rs2) ? imm b : 4) ,  page68
@@ -172,31 +193,10 @@ blt rs1, rs2, pcrel 13 | B | Branch Less Than (Signed) | pc ← pc + ((rs1<rs2) 
 bltu rs1, rs2, pcrel 13 | B | Branch Less Than Unsigned | pc ← pc + ((rs1<rs2) ? imm b : 4) ,  page69
 bne rs1, rs2, pcrel 13 | B | Branch Not Equal | pc ← pc + ((rs1!=rs2) ? imm b : 4) ,  page67
 jal rd, pcrel 21 | J | Jump And Link | rd ← pc+4, pc ← pc+imm j ,  page71
-jalr rd, imm(rs1) | I | Jump And Link Register | rd ← pc+4, pc ← (rs1+imm i)&~1 ,  page73
-lb rd, imm(rs1) | I | Load Byte | rd ← sx(m8(rs1+imm i)), pc ← pc+4 ,  page78
-lbu rd, imm(rs1) | I | Load Byte Unsigned | rd ← zx(m8(rs1+imm i)), pc ← pc+4 ,  page78
-lh rd, imm(rs1) | I | Load Halfword | rd ← sx(m16(rs1+imm i)), pc ← pc+4
-lhu rd, imm(rs1) | I | Load Halfword Unsigned | rd ← zx(m16(rs1+imm i)), pc ← pc+4
 lui rd, imm | U | Load Upper Immediate | rd ← imm u, pc ← pc+4 , page52 
-lw rd, imm(rs1) | I | Load Word | rd ← sx(m32(rs1+imm i)), pc ← pc+4 , page 80
-or rd, rs1, rs2 | R | Or | rd ← rs1 | rs2, pc ← pc+4 , page 50
-ori rd, rs1, imm | I | Or Immediate | rd ← rs1 | imm i, pc ← pc+4
 sb rs2, imm(rs1) | S | Store Byte | m8(rs1+imm s) ← rs2[7:0], pc ← pc+4 , page 83
 sh rs2, imm(rs1) | S | Store Halfword | m16(rs1+imm s) ← rs2[15:0], pc ← pc+4 , page 84
-sll rd, rs1, rs2 | R | Shift Left Logical | rd ← rs1 << (rs2%XLEN), pc ← pc+4 , page52
-slli rd, rs1, shamt | I | Shift Left Logical Immediate | rd ← rs1 << shamt i, pc ← pc+4
-slt rd, rs1, rs2 | R | Set If Less Than (Signed) | rd ← (rs1 < rs2) ? 1 : 0, pc ← pc+4 , page 61
-slti rd, rs1, imm | I | Set Less Than Immediate (Signed) | rd ← (rs1 < imm i) ? 1 : 0, pc ← pc+4
-sltiu rd, rs1, imm | I | Set Less Than Immediate Unsigned | rd ← (rs1 < imm i) ? 1 : 0, pc ← pc+4 , Page 62
-sltu rd, rs1, rs2 | R | Set If Less Than (Unsigned) | rd ← (rs1 < rs2) ? 1 : 0, pc ← pc+4
-sra rd, rs1, rs2 | R | Shift Right Arithmetic | rd ← rs1 >> (rs2%XLEN), pc ← pc+4 , page54
-srai rd, rs1, shamt | I | Shift Right Arithmetic Immediate | rd ← rs1 >> shamt i, pc ← pc+4 , page54
-srl rd, rs1, rs2 | R | Shift Right Logical | rd ← rs1 >> (rs2%XLEN), pc ← pc+4 , page53 
-srli rd, rs1, shamt | I | Shift Right Logical Immediate | rd ← rs1 >> shamt i, pc ← pc+4
-sub rd, rs1, rs2 | R | Subtract | rd ← rs1 - rs2, pc ← pc+4
 sw rs2, imm(rs1) | S | Store Word | m32(rs1+imm s) ← rs2[31:0], pc ← pc+4 , page 85
-xor rd, rs1, rs2 | R | Exclusive Or | rd ← rs1 ^ rs2, pc ← pc+4
-xori rd, rs1, imm | I | Exclusive Or Immediate | rd ← rs1 ^ imm i, pc ← pc+4
 
 ## Special Instructions
 
@@ -232,10 +232,8 @@ TAIL Immed-32 | Tail Call (Faraway Subroutine) / Long-Distance Jump | TAIL MyFun
 Pseudoinstruction            | Base Instruction(s)                                           | Meaning   | Comment
 :----------------------------|:--------------------------------------------------------------|:----------|:--------|
 la rd, symbol                | auipc rd, symbol[31:12]; addi rd, rd, symbol[11:0]            | Load address
-l{b\|h\|w\|d} rd, symbol     | auipc rd, symbol[31:12]; l{b\|h\|w\|d} rd, symbol[11:0]\(rd\) | Load global
-s{b\|h\|w\|d} rd, symbol, rt | auipc rt, symbol[31:12]; s{b\|h\|w\|d} rd, symbol[11:0]\(rt\) | Store global
-fl{w\|d} rd, symbol, rt      | auipc rt, symbol[31:12]; fl{w\|d} rd, symbol[11:0]\(rt\)      | Floating-point load global
-fs{w\|d} rd, symbol, rt      | auipc rt, symbol[31:12]; fs{w\|d} rd, symbol[11:0]\(rt\)      | Floating-point store global
+l{b\|h\|w} rd, symbol        | auipc rd, symbol[31:12]; l{b\|h\|w\|d} rd, symbol[11:0]\(rd\) | Load global
+s{b\|h\|w} rd, symbol, rt    | auipc rt, symbol[31:12]; s{b\|h\|w\|d} rd, symbol[11:0]\(rt\) | Store global
 nop                          | addi x0, x0, 0                                                | No operation
 li rd, immediate             | *Myriad sequences*                                            | Load immediate
 mv rd, rs                    | addi rd, rs, 0                                                | Copy register
@@ -252,12 +250,6 @@ seqz rd, rs                  | sltiu rd, rs, 1                                  
 snez rd, rs                  | sltu rd, x0, rs                                               | Set if != zero
 sltz rd, rs                  | slt rd, rs, x0                                                | Set if < zero
 sgtz rd, rs                  | slt rd, x0, rs                                                | Set if > zero
-fmv.s rd, rs                 | fsgnj.s rd, rs, rs                                            | Copy single-precision register
-fabs.s rd, rs                | fsgnjx.s rd, rs, rs                                           | Single-precision absolute value
-fneg.s rd, rs                | fsgnjn.s rd, rs, rs                                           | Single-precision negate
-fmv.d rd, rs                 | fsgnj.d rd, rs, rs                                            | Copy double-precision register
-fabs.d rd, rs                | fsgnjx.d rd, rs, rs                                           | Double-precision absolute value
-fneg.d rd, rs                | fsgnjn.d rd, rs, rs                                           | Double-precision negate
 beqz rs, offset              | beq rs, x0, offset                                            | Branch if = zero
 bnez rs, offset              | bne rs, x0, offset                                            | Branch if != zero
 blez rs, offset              | bge x0, rs, offset                                            | Branch if ≤ zero
